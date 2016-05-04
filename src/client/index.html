@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+        <title>Prueba atenticacion con Yubikey</title>
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <script src="js/jquery.js"></script>
+        <style>
+            main {
+                max-width: 1000px;
+                margin: auto;
+            }
+            .form-control {
+                max-width: 250px;
+            }
+            .tab {
+                padding: 10px;
+            }
+            .error {
+                color: red;
+                border: 5px solid red;
+                min-height: 150px;
+                min-width: 150px;
+            }
+            .ok {
+                color: green;
+                border: 5px solid green;
+                min-height: 150px;
+                min-width: 150px;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <div class="tab-header">
+                <ul class="nav nav-tabs _tabs">
+                    <li role="presentation" class="active"><a href="_tab1">Form1</a></li>
+                    <li role="presentation"><a href="_tab2">Form2</a></li>
+                    <li role="presentation"><a href="_tab3">Form3</a></li>
+                </ul>
+            </div>
+            <div class="tab _tab1">
+                <h2>Form1</h2>
+                <form role="form" action="validate">
+                    <div class="form-group">
+                        <label for="pwd">Yubikey:</label>
+                        <input type="text" class="form-control" id="yubiKey" name="yubikey">
+                    </div>
+                    <button type="submit" class="btn btn-default">Submit</button>
+                </form>
+            </div>
+            <div class="tab _tab2">
+                <h2>Form2</h2>
+                <form role="form" action="validatepass">
+                    <div class="form-group">
+                        <label for="pwd">Password:</label>
+                        <input type="password" class="form-control" id="pwd" name="password">
+                    </div>
+                    <div class="form-group">
+                        <label for="pwd">Yubikey:</label>
+                        <input type="text" class="form-control" id="yubiKey" name="yubikey">
+                    </div>
+                    <button type="submit" class="btn btn-default">Submit</button>
+                </form>
+            </div>
+            <div class="tab _tab3">
+                <h2>Form3</h2>
+                <form role="form" action="validateuser">
+                    <div class="form-group">
+                        <label for="email">User:</label>
+                        <input type="text" class="form-control" id="email" name="user">
+                    </div>
+                    <div class="form-group">
+                        <label for="pwd">Password:</label>
+                        <input type="password" class="form-control" id="pwd" name="password">
+                    </div>
+                    <div class="form-group">
+                        <label for="pwd">Yubikey:</label>
+                        <input type="text" class="form-control" id="yubiKey" name="yubikey">
+                    </div>
+                    <button type="submit" class="btn btn-default">Submit</button>
+                </form>
+            </div>
+            <div class="results">
+                <h2>Server Response</h2>
+                <pre class="_response ok"></pre>
+            </div>
+        </main>
+        <script>
+            //Stupid script to test functionality
+            //Just change between tabs and send form
+
+            //Select api server
+            var pythonServer = "http://localhost:8000/",
+                phpServer = "http://localhost:8080/php_server/",
+                urlServer = phpServer,
+                $response = $('._response');
+
+            //Handle tabs
+            $(".tab").hide();
+            $("._tab1").show();
+            $("._tabs a").on("click", function(e) {
+                    console.log("se ha cambiado de tab");
+                    e.preventDefault();
+                    var newTab = $(e.currentTarget).attr("href");
+                    $('._tabs li').removeClass('active');
+                    $(e.currentTarget).parent().addClass('active');
+                    $(".tab").hide();
+                    $("."+newTab).show();
+
+                    //update server box
+                    $response.text('');
+                    $response.addClass("ok");
+                    $response.removeClass("error");
+            });
+
+            //send Form to server
+            $("form").submit(function(e) {
+                    e.preventDefault();
+                    console.log("se ha enviado un submit");
+                    var data = $(e.currentTarget).serialize(),
+                        formAction = $(e.currentTarget).attr('action');
+                    $.ajax({
+                        url: urlServer+formAction,
+                        data: data,
+                        method: "POST"
+                    }).done(function(data) {
+                        console.log("validacion exitosa");
+                        $response.text(JSON.stringify(data, null, 2));
+                        $response.addClass("ok");
+                        $response.removeClass("error");
+                    }).fail(function(data) {
+                        console.log("error en la validacion");
+                        $response.text(JSON.stringify(data, null, 2));
+                        $response.addClass("error");
+                        $response.removeClass("ok");
+                    });
+            });
+        </script>
+    </body>
+</html>
