@@ -22,8 +22,9 @@ cd /var/www/html/python_server/
 ```
 
 ### Open client
-The client test could be open in:
-http://localhost:8080/client/
+Open test app in:
+
+* http://localhost:8080/client/
 
 ## Bibliograpy
 ###Create api key:
